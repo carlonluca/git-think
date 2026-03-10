@@ -29,24 +29,41 @@ struct Chunk {
 }
 
 pub struct GAOllama {
-    pub model: String,
-    pub query: String,
+    pub llm: String,
+    pub patch: String,
+    pub threads: u16
 }
 
 impl GAOllama {
-   pub async fn query_gen_commit_msg(llm: &str, patch: &str, threads: u16) -> Option<String> {
+   pub async fn query_gen_commit_msg(&self) -> Option<String> {
       let prompt = format!(r#"
+Given the patch below, create a proper git commit message.
 Output ONLY the commit message text.
-Do not include explanations, confirmations, or any additional text. This is the patch:\n
-{patch}"#);
+Do not include explanations, confirmations, or any additional text. This is the patch:
+{0}"#, self.patch);
 
+      self.query(&prompt).await
+   }
+
+   pub async fn query_gen_review(&self) -> Option<String> {
+      let prompt = format!(r#"
+Output only comments in a numbered list.
+Cite the lines of code you comment when possible.
+Give priority to bugs and underline in red using ANSI codes.
+Review this patch:
+{0}"#, self.patch);
+
+      self.query(&prompt).await
+   }
+
+   async fn query(&self, prompt: &str) -> Option<String> {
       let client = Client::new();
       let payload = json!({
-         "model": llm,
+         "model": self.llm,
          "prompt": prompt,
          "options": {
             "temperature": 0,
-            "num_thread": threads
+            "num_thread": self.threads
          }
       });
 

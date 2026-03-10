@@ -28,20 +28,32 @@ async fn main() {
     env_logger::init();
 
     let args = gacli::GACli::parse();
+    let patch = gagit::GAGit::read_staged();
+    if patch.is_none() {
+        return;
+    }
+    
+    let patch = patch.unwrap();
+    let patch = patch.trim();
+    if patch.is_empty() {
+        warn!("No staged changes");
+        return;
+    }
+
+    let ollama = gaollama::GAOllama {
+        llm: args.model,
+        patch: patch.to_string(),
+        threads: args.threads
+    };
+
     match args.cmd.as_str() {
         "gen-commit-msg" => {
-            let response = gagit::GAGit::read_staged();
-            if response.is_none() {
-                return;
-            }
-            let response = response.unwrap();
-            let response = response.trim();
-            if response.is_empty() {
-                warn!("No staged changes");
-                return;
-            }
-            let ollama = gaollama::GAOllama::query_gen_commit_msg(&args.model, response, args.threads).await;
-            println!("{}", ollama.unwrap());
+            let res = ollama.query_gen_commit_msg().await;
+            println!("{}", res.unwrap());
+        }
+        "gen-review" => {
+            let res = ollama.query_gen_review().await;
+            println!("{}", res.unwrap());
         }
         _ => {}
     }
