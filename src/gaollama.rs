@@ -16,6 +16,7 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+use log::debug;
 use reqwest::Client;
 use serde::Deserialize;
 use serde_json::json;
@@ -31,7 +32,8 @@ struct Chunk {
 pub struct GAOllama {
     pub llm: String,
     pub patch: String,
-    pub threads: u16
+    pub threads: u16,
+    pub think: bool
 }
 
 impl GAOllama {
@@ -61,6 +63,7 @@ Review this diff:
       let payload = json!({
          "model": self.llm,
          "prompt": prompt,
+         "think": self.think,
          "options": {
             "temperature": 0,
             "num_thread": self.threads

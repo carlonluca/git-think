@@ -60,7 +60,8 @@ async fn main() {
     let ollama = gaollama::GAOllama {
         llm: args.model,
         patch: patch.to_string(),
-        threads: args.threads
+        threads: args.threads,
+        think: args.think
     };
 
     match args.cmd.as_str() {

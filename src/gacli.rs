@@ -25,5 +25,7 @@ pub struct GACli {
    #[arg(short = 'm', long = "llm", env = "GT_LLM")]
    pub model: String,
    #[arg(short = 't', long = "threads", env = "GT_THREADS")]
-   pub threads: u16
+   pub threads: u16,
+   #[arg(short = 'T', long = "think", env = "GT_THINK")]
+   pub think: bool
 }
