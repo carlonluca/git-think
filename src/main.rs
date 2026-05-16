@@ -21,14 +21,31 @@ pub mod gagit;
 pub mod gaollama;
 
 use clap::Parser;
-use log::warn;
+use log::{warn, error};
+use std::io::{self, Read, IsTerminal};
 
 #[tokio::main]
 async fn main() {
     env_logger::init();
 
     let args = gacli::GACli::parse();
-    let patch = gagit::GAGit::read_staged();
+    let mut stdin = io::stdin();
+    let patch = if stdin.is_terminal() {
+        gagit::GAGit::read_staged()
+    }
+    else {
+        let mut in_data = String::new();
+        match stdin.read_to_string(&mut in_data) {
+            Ok(_) => {
+                Some(in_data)
+            }
+            Err(e) => {
+                error!("Cannot read from stdin: {:?}", e);
+                return;
+            }
+        }
+    };
+
     if patch.is_none() {
         return;
     }

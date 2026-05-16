@@ -49,8 +49,8 @@ Do not include explanations, confirmations, or any additional text. This is the 
       let prompt = format!(r#"
 Output only comments in a numbered list.
 Cite the lines of code you comment when possible.
-Give priority to bugs and underline in red using ANSI codes.
-Review this patch:
+Give priority to bugs.
+Review this diff:
 {0}"#, self.patch);
 
       self.query(&prompt).await
